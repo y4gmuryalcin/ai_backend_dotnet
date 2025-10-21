@@ -1,23 +1,17 @@
-# 🧩 Build aşaması
+# Build stage
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
-# .csproj dosyasını kopyala ve bağımlılıkları indir
+# Copy csproj and restore dependencies
 COPY *.csproj ./
 RUN dotnet restore
 
-# Geri kalan dosyaları kopyala ve build et
+# Copy the rest of the code
 COPY . ./
 RUN dotnet publish -c Release -o out
 
-# 🧩 Runtime aşaması
+# Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build /app/out .
-
-# Render için port belirt
-ENV ASPNETCORE_URLS=http://+:10000
-EXPOSE 10000
-
-# Uygulamayı başlat
 ENTRYPOINT ["dotnet", "ai_backend_dotnet.dll"]
